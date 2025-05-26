@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/srozzo/signals"
+	"github.com/srozzo/go-signals"
 )
 
 func main() {

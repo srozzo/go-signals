@@ -1,7 +1,7 @@
 # signals
 
-![GitHub License](https://img.shields.io/github/license/srozzo/signals?style=flat&link=https%3A%2F%2Fraw.githubusercontent.com%2Fsrozzo%2Fsignals%2Frefs%2Fheads%2Fmain%2FLICENSE)
-![Go Test](https://img.shields.io/github/actions/workflow/status/srozzo/signals/test.yml?branch=main)
+![GitHub License](https://img.shields.io/github/license/srozzo/go-signals?style=flat&link=https%3A%2F%2Fraw.githubusercontent.com%2Fsrozzo%2Fsignals%2Frefs%2Fheads%2Fmain%2FLICENSE)
+![Go Test](https://img.shields.io/github/actions/workflow/status/srozzo/go-signals/test.yml?branch=main)
 ![Coverage](https://img.shields.io/badge/coverage-92.1%25-brightgreen)
 ![Go Report Card](https://img.shields.io/badge/go%20report-A%2B-brightgreen?logo=go)
 
@@ -18,7 +18,7 @@ A lightweight, thread-safe Unix signal handling module for Go. Designed for clea
 ## 📦 Install
 
 ```bash
-go get github.com/srozzo/signals
+go get github.com/srozzo/go-signals
 ```
 
 ## 🚀 Quick Start
@@ -33,7 +33,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/srozzo/signals"
+	"github.com/srozzo/go-signals"
 )
 
 func main() {
