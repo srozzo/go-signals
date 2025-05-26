@@ -1,6 +1,7 @@
 package signals
 
 import (
+	"context"
 	"os"
 	"sync"
 	"sync/atomic"
@@ -28,6 +29,13 @@ func TestStartDefaultSource(t *testing.T) {
 	err := Start(syscall.SIGINT)
 	if err != nil {
 		t.Fatalf("Start failed: %v", err)
+	}
+}
+
+func TestStartWithSource_NoSignals(t *testing.T) {
+	err := StartWithSource(&mockSignalSource{SignalChan: make(chan os.Signal)}, []os.Signal{}...)
+	if err == nil {
+		t.Error("expected error for no signals provided")
 	}
 }
 
@@ -225,5 +233,44 @@ func TestDefaultHandlerWhenNoHandlerRegistered(t *testing.T) {
 	case <-done:
 	case <-time.After(250 * time.Millisecond):
 		t.Error("default handler was not invoked for unregistered signal")
+	}
+}
+
+func TestCancelOnUnhandled(t *testing.T) {
+	Reset()
+	ForceResetStartOnce()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	done := make(chan struct{})
+	SetConfig(&Config{
+		CancelOnUnhandled: true,
+		DefaultHandler: func(sig os.Signal) {
+			t.Logf("default handler: %v", sig)
+			cancel()
+		},
+	})
+
+	mockSrc := &mockSignalSource{SignalChan: make(chan os.Signal, 1)}
+	if err := StartWithSource(mockSrc, syscall.SIGINT); err != nil {
+		t.Fatalf("StartWithSource failed: %v", err)
+	}
+
+	go func() {
+		select {
+		case <-ctx.Done():
+			close(done)
+		case <-time.After(500 * time.Millisecond):
+			t.Error("context not canceled on unhandled signal")
+		}
+	}()
+
+	mockSrc.SignalChan <- syscall.SIGUSR2
+
+	select {
+	case <-done:
+	case <-time.After(300 * time.Millisecond):
+		t.Error("context cancellation not observed")
 	}
 }
