@@ -18,11 +18,35 @@ jobs:
       
       - name: Set up Go
         uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
 
       - name: Run tests
-        run: go test -v -race -coverprofile=coverage.txt ./... 
+        run: go test -v -race -coverprofile=coverage.txt ./...
 
       - name: Upload coverage results to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  fuzz:
+    name: Run short fuzz suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
+
+      - name: Fuzz StateMachine
+        run: go test ./signals -run FuzzStateMachine -fuzz=StateMachine -fuzztime=20s -count=1
+
+      - name: Fuzz PolicyShutdown
+        run: go test ./signals -run FuzzPolicyShutdown -fuzz=PolicyShutdown -fuzztime=20s -count=1
+
+      - name: Fuzz DefaultVsInstance
+        run: go test ./signals -run FuzzDefaultVsInstance -fuzz=DefaultVsInstance -fuzztime=20s -count=1
